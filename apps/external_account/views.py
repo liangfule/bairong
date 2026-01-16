@@ -10,11 +10,11 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.external_account.models import WecomInfo
 
-#插件
+#插件功能
 def plugin_call(request):
-    print(1)
-    print(2)
-    print(3)
+    num1 = 1
+    num2 = 2
+    print(num1+num2)
 
 # 查询渠道账号是否绑定
 @require_GET
