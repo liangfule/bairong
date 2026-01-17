@@ -1,6 +1,5 @@
 import json
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import F
 from django.http import HttpResponse, JsonResponse
 
