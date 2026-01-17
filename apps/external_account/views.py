@@ -1,6 +1,5 @@
 import json
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import F
 from django.http import HttpResponse, JsonResponse
 
@@ -10,6 +9,11 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.external_account.models import WecomInfo
 
+#插件功能
+def plugin_call(request):
+    num1 = 1
+    num2 = 2
+    print(num1+num2)
 
 # 查询渠道账号是否绑定
 @require_GET
