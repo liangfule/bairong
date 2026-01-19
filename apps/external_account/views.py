@@ -9,7 +9,14 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.external_account.models import WecomInfo
 
-
+# 测试查询
+def test_function(request):
+    print('请求成功！')
+    return JsonResponse({
+        "code": 0,
+        "msg": "~~okk~~",
+        "data": None
+    })
 
 # 查询渠道账号是否绑定
 @require_GET
