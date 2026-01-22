@@ -17,9 +17,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 SECRET_KEY = 'django-insecure-kd-ius@5azp^zcslf0xqu$=zb7_s*msv@qs%wn$tq3ezf(dpqq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+#生产环境
+# DEBUG = False
+# ALLOWED_HOSTS = ['120.48.117.40','192.168.161.215','180.76.227.254']
 
-ALLOWED_HOSTS = ['120.48.117.40','192.168.161.215','180.76.227.254']
+#测试环境
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
