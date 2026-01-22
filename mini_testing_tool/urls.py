@@ -20,5 +20,6 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('external_account_wecom/', include('apps.external_account.urls'))
+    path('external_account_wecom/', include('apps.external_account.urls')),
+    path('external_account_dd/', include('apps.external_account.urls'))
 ]

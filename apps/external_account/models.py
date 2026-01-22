@@ -7,7 +7,21 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+#钉钉
+class RobotIdMap(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    platform_robot_id = models.CharField(unique=True, max_length=200, blank=True, null=True)
+    cybertron_robot_id = models.ForeignKey('Robot', models.DO_NOTHING)
+    robot_secret = models.CharField(max_length=128, blank=True, null=True)
+    enable_group_chat = models.IntegerField(blank=True, null=True, db_comment='是否开启群聊')
+    use_card = models.IntegerField(db_comment='是否使用卡片')
+    robot_key = models.IntegerField(blank=True, null=True, db_comment='robot key')
 
+    class Meta:
+        managed = False
+        db_table = 'robot_id_map'
+
+#企微
 class WecomInfo(models.Model):
     id = models.BigAutoField(primary_key=True, db_comment='primary key')
     company_name = models.CharField(max_length=500, db_comment='企业名称')
@@ -34,7 +48,7 @@ class WecomInfo(models.Model):
         db_table = 'wecom_info'
         db_table_comment = '企业微信信息表'
 
-
+#Robot
 class Robot(models.Model):
     id = models.BigAutoField(primary_key=True)
     robot_name = models.CharField(max_length=50)
@@ -143,7 +157,7 @@ class Robot(models.Model):
         managed = False
         db_table = 'robot'
 
-
+#用户
 class Users(models.Model):
     id = models.BigAutoField(primary_key=True)
     password = models.CharField(max_length=128)
@@ -178,3 +192,4 @@ class Users(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
+
