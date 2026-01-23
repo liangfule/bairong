@@ -66,7 +66,8 @@ def query_wecom_account(request):
 @csrf_exempt
 def del_wecom_account(request):
     try:
-        robot_id = json.loads(request.body.decode('utf-8'))['robot_id']
+        body = json.loads(request.body or "{}")
+        robot_id = body.get("robot_id")
     except json.decoder.JSONDecodeError:
         return JsonResponse({
             "code": 400,
@@ -148,7 +149,8 @@ def query_dd_account(request):
 @csrf_exempt
 def del_dd_account(request):
     try:
-        robot_id = json.loads(request.body.decode('utf-8'))
+        body = json.loads(request.body or "{}")
+        robot_id = body.get("robot_id")
     except json.decoder.JSONDecodeError:
         return JsonResponse({
             "code": 400,
