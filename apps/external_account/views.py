@@ -52,6 +52,7 @@ def query_wecom_account(request):
         )
     )
 
+
     query_result = {
         "code": 0,
         "msg": "success",
