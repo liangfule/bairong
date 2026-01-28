@@ -1,11 +1,10 @@
 import json
 
 from django.db.models import F
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.views.decorators.http import require_POST
 
 from apps.external_account.models import WecomInfo, RobotIdMap
 
@@ -14,17 +13,26 @@ from apps.external_account.models import WecomInfo, RobotIdMap
 def test_function(request):
     print('请求成功！')
     return JsonResponse({
-        "code": 0,
+        "code": 200,
         "msg": "~~okk~~",
         "data": None
     })
 
 
 # 查询企微账号是否绑定
-@require_GET
+@require_POST
+@csrf_exempt
 def query_wecom_account(request):
-    company_name = request.GET.get('company_name')
-    username = request.GET.get('username')
+    try:
+        body = json.loads(request.body or "{}")
+        company_name = body.get("company_name")
+        username = body.get("username")
+    except json.decoder.JSONDecodeError:
+        return JsonResponse({
+            "code": 400,
+            "msg": "参数异常！",
+            "data": None
+        })
 
     if not company_name or not username:
         return JsonResponse({
@@ -52,9 +60,8 @@ def query_wecom_account(request):
         )
     )
 
-
     query_result = {
-        "code": 0,
+        "code": 200,
         "msg": "success",
         "data": list(linked_account)
     }
@@ -87,7 +94,7 @@ def del_wecom_account(request):
 
     if not is_exist:
         return JsonResponse({
-            "code": 0,
+            "code": 200,
             "msg": "当前企业微信账号不存在绑定的agent！",
             "data": None
         })
@@ -96,17 +103,26 @@ def del_wecom_account(request):
         WecomInfo.objects.filter(robot_id=robot_id).update(is_delete=1)
 
         return JsonResponse({
-            "code": 0,
+            "code": 200,
             "msg": "解绑成功！",
             "data": None
         })
 
 
 # 查询钉钉账号是否绑定
-@require_GET
+@require_POST
+@csrf_exempt
 def query_dd_account(request):
-    client_id = request.GET.get('client_id')
-    client_secret = request.GET.get('client_secret')
+    try:
+        body = json.loads(request.body or "{}")
+        client_id = body.get("client_id")
+        client_secret = body.get("client_secret")
+    except json.decoder.JSONDecodeError:
+        return JsonResponse({
+            "code": 400,
+            "msg": "参数异常！",
+            "data": None
+        })
 
     if not client_id or not client_secret:
         return JsonResponse({
@@ -137,7 +153,7 @@ def query_dd_account(request):
     )
 
     query_result = {
-        "code": 0,
+        "code": 200,
         "msg": "success",
         "data": list(linked_account)
     }
@@ -170,7 +186,7 @@ def del_dd_account(request):
 
     if not is_exist:
         return JsonResponse({
-            "code": 0,
+            "code": 200,
             "msg": "当前钉钉账号不存在绑定的agent！",
             "data": None
         })
@@ -179,7 +195,7 @@ def del_dd_account(request):
         RobotIdMap.objects.filter(cybertron_robot_id=robot_id).delete()
 
         return JsonResponse({
-            "code": 0,
+            "code": 200,
             "msg": "解绑成功！",
             "data": None
         })
