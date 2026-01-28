@@ -10,6 +10,7 @@ from apps.external_account.models import WecomInfo, RobotIdMap
 
 
 # 测试查询
+@csrf_exempt
 def test_function(request):
     print('请求成功！')
     return JsonResponse({
