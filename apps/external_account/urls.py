@@ -11,5 +11,9 @@ urlpatterns = [
 
     #钉钉
     path('query_dd_account/', views.query_dd_account),
-    path('del_dd_account/', views.del_dd_account)
+    path('del_dd_account/', views.del_dd_account),
+
+    #whatsapp
+    path('query_wa_account/', views.query_wa_account),
+    path('del_wa_account/', views.del_wa_account)
 ]

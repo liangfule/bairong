@@ -21,7 +21,7 @@ class RobotIdMap(models.Model):
         managed = False
         db_table = 'robot_id_map'
 
-#企微
+#企业微信
 class WecomInfo(models.Model):
     id = models.BigAutoField(primary_key=True)
     company_name = models.CharField(max_length=500)
@@ -47,6 +47,30 @@ class WecomInfo(models.Model):
         managed = False
         db_table = 'wecom_info'
         db_table_comment = '企业微信信息表'
+
+# Whatsapp
+class WhatsappInfo(models.Model):
+    id = models.BigAutoField(primary_key=True, db_comment='primary key')
+    mobile = models.CharField(max_length=500, db_comment='手机号')
+    api_key = models.CharField(max_length=100, db_comment='api_key')
+    robot_key = models.IntegerField(db_comment='机器人密钥')
+
+    create_time = models.DateTimeField(db_comment='创建时间')
+    update_time = models.DateTimeField(blank=True, null=True, db_comment='最后修改时间')
+    is_delete = models.IntegerField(db_comment='是否删除')
+    agent_type = models.IntegerField()
+
+    robot = models.OneToOneField(
+        'Robot',
+        db_column='robot_id',  # 保持数据库字段名不变
+        on_delete=models.DO_NOTHING,
+        related_name='whatsapp_info'
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'whatsapp_info'
+        db_table_comment = 'whatsapp信息表'
 
 #Robot
 class Robot(models.Model):
@@ -192,4 +216,3 @@ class Users(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
-
