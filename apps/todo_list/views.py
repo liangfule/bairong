@@ -2,8 +2,10 @@ import json
 from datetime import datetime
 
 import requests
+from django.db.models.expressions import result
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 now = datetime.now()
 
@@ -23,7 +25,6 @@ requirements_list_url = "https://teamcycle.100credit.cn/api/requirement/listPage
 tasks_list_url = "https://teamcycle.100credit.cn/api/task/listPage"
 
 # 测试查询
-@csrf_exempt
 def test_function(request):
     print('请求成功！')
     return JsonResponse({
@@ -32,7 +33,107 @@ def test_function(request):
         "data": None
     })
 
-# 获取 测试中的 需求列表
+# 单个人员的待办任务
+@require_POST
+@csrf_exempt
+def single_person_todo(request):
+    try:
+        body = json.loads(request.body or "{}")
+        name = body.get("name")
+    except json.decoder.JSONDecodeError:
+        return JsonResponse({
+            "code": 400,
+            "msg": "参数异常！",
+            "data": None
+        })
+
+    if not name or name not in members_list:
+        return JsonResponse({
+            "code": 200,
+            "msg": "未找到该人员的待办任务",
+            "data": None
+        })
+
+    # 复用全量接口，再取当前用户
+    result = get_todo_task_list()
+    person_data = result.get(name, [])
+    return JsonResponse({
+        "code": 200,
+        "msg": "success",
+        "data": person_data
+    })
+
+# 所有人员的待办任务
+@require_POST
+@csrf_exempt
+def todo_task_list(request):
+
+    result = get_todo_task_list()
+
+    return JsonResponse({
+        "code": 200,
+        "msg": "success",
+        "data": result
+    })
+
+def get_todo_task_list():
+    # 获取需求清单
+    rl = requirements_list()
+    rl_result = {member: [] for member in members_list}
+
+    for member in members_list:
+        for requirement in rl[member]:
+            # 获取需求标题
+            requirementTitle = requirement.get("requirementTitle", "")
+
+            # 解析测试时间
+            test_info = requirement.get("expandCols", {}).get("测试", "")
+            date_str, persons = test_info.split("|")
+
+            start_date, end_date = test_time_processing(date_str)
+
+            # 添加到结果中（datetime 转字符串以便 JSON 序列化）
+            rl_result[member].append({
+                "todoName": requirementTitle,
+                "startDate": str(start_date),
+                "endDate": str(end_date)
+            })
+
+    # print(json.dumps(rl_result, ensure_ascii=False, indent=4))
+
+    # 任务清单
+    tl = tasks_list()
+    tl_result = {member: [] for member in members_list}
+
+    for member in members_list:
+        for task in tl[member]:
+            # 获取需求标题
+            taskName = task.get("taskName", "")
+
+            # 获取测试时间
+            start_date = task.get("attributes", [])[3].get("attrValue", "")
+            end_date = task.get("attributes", [])[4].get("attrValue", "")
+
+            # 添加到结果中
+            tl_result[member].append({
+                "todoName": taskName,
+                "startDate": start_date,
+                "endDate": end_date
+            })
+
+    # print(json.dumps(tl_result, ensure_ascii=False, indent=4))
+
+    # 结果聚合
+    result = {
+        member: rl_result[member] + tl_result[member]
+        for member in members_list
+    }
+
+    # print(json.dumps(result, ensure_ascii=False, indent=4))
+
+    return result
+
+# 需求列表
 def requirements_list():
     filter_parameters = {
         "pageNo": 1,
@@ -93,8 +194,7 @@ def requirements_list():
     # print(json.dumps(third_filter_records_all, ensure_ascii=False, indent=4))
     return third_filter_records_all
 
-
-# 获取 进行中的 任务列表
+# 任务列表
 def tasks_list():
     filter_parameters = {"pageNo": 1, "pageSize": 1000, "projectId": 68, "showType": 1}
 
@@ -173,70 +273,6 @@ def tasks_list():
 
     # print(json.dumps(third_filter_records_all, ensure_ascii=False, indent=4))
     return third_filter_records_all
-
-
-# 测试任务聚合
-@csrf_exempt
-def todo_task_list(requst):
-    # 获取需求清单
-    rl = requirements_list()
-    rl_result = {member: [] for member in members_list}
-
-    for member in members_list:
-        for requirement in rl[member]:
-            # 获取需求标题
-            requirementTitle = requirement.get("requirementTitle", "")
-
-            # 解析测试时间
-            test_info = requirement.get("expandCols", {}).get("测试", "")
-            date_str, persons = test_info.split("|")
-
-            start_date, end_date = test_time_processing(date_str)
-
-            # 添加到结果中（datetime 转字符串以便 JSON 序列化）
-            rl_result[member].append({
-                "todoName": requirementTitle,
-                "startDate": str(start_date),
-                "endDate": str(end_date)
-            })
-
-    # print(json.dumps(rl_result, ensure_ascii=False, indent=4))
-
-    # 任务清单
-    tl = tasks_list()
-    tl_result = {member: [] for member in members_list}
-
-    for member in members_list:
-        for task in tl[member]:
-            # 获取需求标题
-            taskName = task.get("taskName", "")
-
-            # 获取测试时间
-            start_date = task.get("attributes", [])[3].get("attrValue", "")
-            end_date = task.get("attributes", [])[4].get("attrValue", "")
-
-            # 添加到结果中
-            tl_result[member].append({
-                "todoName": taskName,
-                "startDate": start_date,
-                "endDate": end_date
-            })
-
-    # print(json.dumps(tl_result, ensure_ascii=False, indent=4))
-
-    # 结果聚合
-    result = {
-        member: rl_result[member] + tl_result[member]
-        for member in members_list
-    }
-
-    # print(json.dumps(result, ensure_ascii=False, indent=4))
-
-    return JsonResponse({
-        "code": 200,
-        "msg": "success",
-        "data": result
-    })
 
 # 判断测试时间是否跨天，是否跨年
 def test_time_processing(date_str):
