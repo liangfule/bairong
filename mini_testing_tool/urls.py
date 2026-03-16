@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('external_account_wecom/', include('apps.external_account.urls')),
     path('external_account_dd/', include('apps.external_account.urls')),
-    path('external_account_wa/', include('apps.external_account.urls'))
+    path('external_account_wa/', include('apps.external_account.urls')),
+    path('todo_list/', include('apps.todo_list.urls'))
 ]
