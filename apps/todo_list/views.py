@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 import requests
-from django.db.models.expressions import result
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -307,12 +307,16 @@ def test_time_processing(date_str):
 
     return start_date, end_date
 
+# ===================== 定时触达的任务 =====================
+def daily_task():
+    """每天 09:45 执行的任务"""
+    # print(f"\n===== [{now}] 开始执行每日定时任务 =====")
+    # result = get_todo_task_list()
+    # print(result)
+    pass
+
 # if __name__ == '__main__':
-#     # 需求列表
-#     # requirements_list()
-#
-#     # 任务列表
-#     # tasks_list()
-#
-#     # 待办列表
-#     todo_task_list()
+#     pass
+
+
+
